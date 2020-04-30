@@ -14,11 +14,7 @@ public class PhaserTest1 {
         for (int i = 0; i < 10; i++) {
             phaser.register();                  // 注册各个参与者线程
             System.out.println("register");
-            Thread thread = new Thread(new Task(phaser), "Thread-" + i);
-            thread.start();
-            if (i == 3) {
-                thread.interrupt();
-            }
+           new Thread(new Task(phaser), "Thread-" + i).start();
         }
     }
 }
