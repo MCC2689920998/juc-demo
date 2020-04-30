@@ -1,4 +1,4 @@
-package com.example.juc.demo.sync;
+package com.example.juc.sync.phaser;
 
 import java.io.IOException;
 import java.util.concurrent.Phaser;
@@ -13,7 +13,6 @@ public class PhaserTest4 {
     private static final int TASKS_PER_PHASER = 4;      // 每个Phaser对象对应的工作线程（任务）数
 
     public static void main(String[] args) throws IOException {
-
         int repeats = 3;    // 指定任务最多执行的次数
         Phaser phaser = new Phaser() {
             @Override
@@ -23,16 +22,16 @@ public class PhaserTest4 {
             }
         };
 
-        Task4[] taskers = new Task4[10];
+        Tasker[] taskers = new Tasker[5];
         build(taskers, 0, taskers.length, phaser);       // 根据任务数,为每个任务分配Phaser对象
 
         for (int i = 0; i < taskers.length; i++) {          // 执行任务
             Thread thread = new Thread(taskers[i]);
             thread.start();
         }
-    }
+   }
 
-    private static void build(Task4[] taskers, int lo, int hi, Phaser phaser) {
+    private static void build(Tasker[] taskers, int lo, int hi, Phaser phaser) {
         if (hi - lo > TASKS_PER_PHASER) {
             for (int i = lo; i < hi; i += TASKS_PER_PHASER) {
                 int j = Math.min(i + TASKS_PER_PHASER, hi);
@@ -40,16 +39,22 @@ public class PhaserTest4 {
             }
         } else {
             for (int i = lo; i < hi; ++i){
-                taskers[i] = new Task4(phaser);
+                taskers[i] = new Tasker(i, phaser);
             }
         }
 
     }
 }
-class Task4 implements Runnable {
+class Tasker implements Runnable {
     private final Phaser phaser;
+    private int count;
 
-    Task4(Phaser phaser) {
+    Tasker(Phaser phaser) {
+        this.phaser = phaser;
+        this.phaser.register();
+    }
+    Tasker(int i,Phaser phaser) {
+        this.count = i;
         this.phaser = phaser;
         this.phaser.register();
     }
@@ -59,7 +64,7 @@ class Task4 implements Runnable {
         while (!phaser.isTerminated()) {   //只要Phaser没有终止, 各个线程的任务就会一直执行
             int i = phaser.arriveAndAwaitAdvance();     // 等待其它参与者线程到达
             // do something
-            System.out.println(Thread.currentThread().getName() + ": 执行完任务");
+            System.out.println(Thread.currentThread().getName() + ": 执行完任务,count=" + count);
         }
     }
 }

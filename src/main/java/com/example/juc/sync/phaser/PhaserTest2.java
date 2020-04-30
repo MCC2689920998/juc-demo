@@ -1,4 +1,4 @@
-package com.example.juc.demo.sync;
+package com.example.juc.sync.phaser;
 
 import java.io.BufferedReader;
 import java.io.IOException;
